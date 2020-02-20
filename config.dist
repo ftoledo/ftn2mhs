@@ -1,0 +1,8 @@
+[global]
+address = 4:902/26.5
+name = WG Gateway
+
+[maps]
+; ECHOAREA = WGFORUM
+ESP.PRUEBAS = pruebas
+

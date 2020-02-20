@@ -1,0 +1,6 @@
+SMF-70
+To: hello@fidonet
+From: MBBS@docksud {MBBS: Ragnarok}
+Subject: the cool subject
+Summary: MBBS: MHS:nameofsender @ domainsender
+MCB-options: NNYNPNP

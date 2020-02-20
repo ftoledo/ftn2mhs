@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+import argparse
+import fidonet
+try:
+    from ConfigParser import ConfigParser
+except ImportError:
+    # Python 3
+    from configparser import ConfigParser
+
+class Ftn2Mhs():
+        
+    def mhs_import(self):
+        print self.cfg.get("global","address", "Invalid")
+        
+
+
+    def main(self):
+        self.cfg = ConfigParser()
+        self.cfg.read("config")
+
+        parser = argparse.ArgumentParser(description='runtime options.')
+        parser.add_argument("--debug", help="enable debug", action="store_true")
+
+        self.args = parser.parse_args()
+
+        self.mhs_import()
+    
+if __name__ == "__main__": 
+    Ftn2Mhs().main()
+    
+    
