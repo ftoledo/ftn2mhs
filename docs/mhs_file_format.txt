@@ -1,0 +1,40 @@
+MHS use SMF-70 format.
+I dont found much about it. But sems a kind of RFC-822
+But via trail/error i found that with this headers fields, WG can import/export
+files
+
+Ref:
+https://tools.ietf.org/html/rfc1495
+
+
+Message exported from forum (notice no dot have date):
+
+------------------------------------------------------
+SMF-70
+To: hello@fidonet
+From: MBBS@docksud {MBBS: Ragnarok}
+Subject: the cool subject
+Summary: MBBS: MHS:nameofsender @ domainsender
+MCB-options: NNYNPNP
+
+
+ND>This is the message body
+ND>Saludos!
+
+blalbalbabl
+--------------------------------------------------------
+
+
+Message to import to forum:
+(i put the date field, but will iported with NOW() date)
+
+-------------------------------------------------
+From: NameOfSender @ DomainOfSender
+To: /hello @ MBBS {MBBS: /hello}
+Subject: the cool subject
+Summary: MBBS: to_Username
+Date: 19-Mar-19 15:15
+
+This is the message body
+Saludos!
+--------------------------------------------------
