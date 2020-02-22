@@ -1,31 +1,58 @@
-#!/usr/bin/env python
-import argparse
-import fidonet
-try:
-    from ConfigParser import ConfigParser
-except ImportError:
-    # Python 3
-    from configparser import ConfigParser
+#!/bin/bash
+OLDIFS="$IFS"
 
-class Ftn2Mhs():
-        
-    def mhs_import(self):
-        print self.cfg.get("global","address", "Invalid")
-        
+PATH_FIDO_IN=fido_in
+PATH_MHS_IN=mhs_in
+PATH_WORK=work
 
+trim() {
+    local var="$*"
+    # remove leading whitespace characters
+    var="${var#"${var%%[![:space:]]*}"}"
+    # remove trailing whitespace characters
+    var="${var%"${var##*[![:space:]]}"}"
+    echo -n "$var"
+}
 
-    def main(self):
-        self.cfg = ConfigParser()
-        self.cfg.read("config")
+mhs_import() {
+    # Unpack pkt files at temp/work dir
+    rm $PATH_WORK/*
+    rm $PATH_MHS_IN/*
+    for pkt in `find $PATH_FIDO_IN -iname *.pkt`
+    do
+        echo -e "Processing: $pkt"
+        ftn-unpack -D $PATH_WORK $pkt
+    done
 
-        parser = argparse.ArgumentParser(description='runtime options.')
-        parser.add_argument("--debug", help="enable debug", action="store_true")
+    # convert each msg into msh file
+    for msg in `find $PATH_WORK -iname *.msg`
+    do
+        echo "Processing: $msg"
+        IFS=""
+        MSG_TEXT=`ftn-scanmsg -t $msg | tr '\0' '\r\n'`
+        HEADERS=`echo $MSG_TEXT | sed '/^$/q'`
+        BODY=`echo $MSG_TEXT | sed -e '1,/^$/d'`
+        OUT_FILE=`basename $msg .msg`
 
-        self.args = parser.parse_args()
+        echo $HEADERS
+        # From
+        echo $HEADERS | grep "From:" >$PATH_MHS_IN/$OUT_FILE
+        # To
+        to_line=`echo $HEADERS | grep "To: "`
+        IFS=':'
+        read -r field value <<< "$to_line"
+        to_name=`echo $value | cut -f 1 -d "@"`
+        IFS=""
+        echo "To: $to_name @ MBBS {MBBS: $to_name}" >> $PATH_MHS_IN/$OUT_FILE
+        # Subject
+        echo $HEADERS | grep "Subject:" >>$PATH_MHS_IN/$OUT_FILE
+        # Summary
+        echo "Summary: MBBS: $to_name" >>$PATH_MHS_IN/$OUT_FILE
+        # Date
+        echo $HEADERS | grep "Date:" >>$PATH_MHS_IN/$OUT_FILE
+        echo -e "\r\n" >>$PATH_MHS_IN/$OUT_FILE 
+        echo $BODY >>$PATH_MHS_IN/$OUT_FILE
+    done
+}
 
-        self.mhs_import()
-    
-if __name__ == "__main__": 
-    Ftn2Mhs().main()
-    
-    
+mhs_import
