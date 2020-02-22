@@ -2,7 +2,14 @@
 address = 4:902/26.5
 name = WG Gateway
 
+[tools]
+unpack=ftn-unpack
+
+[paths]
+mhs_in = mhs_in
+mhs_out = mhs_out
+work = work
+
 [maps]
 ; ECHOAREA = WGFORUM
 ESP.PRUEBAS = pruebas
-
