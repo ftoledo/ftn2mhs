@@ -1,2 +1,7 @@
 config
-
+binkd.log
+binkd.cfg
+fido_out
+fido_in
+mhs_in
+mhs_out

@@ -1,0 +1,30 @@
+log binkd.log
+loglevel 4
+domain fidonet fido_out 4
+domain fido        alias-for fidonet
+domain fidorus     alias-for fidonet
+domain fido7       alias-for fidonet
+domain fidonet.org alias-for fidonet
+domain fidonet.net alias-for fidonet
+address 4:902/26.5@fidonet
+sysname "WG Gateway Point"
+location "Dock Sud, Bs As Argentina"
+sysop "Ragnarok"
+nodeinfo 115200,TCP,BINKP
+conlog 4
+try 10
+hold 10m
+send-if-pwd
+percents
+printq
+backresolv
+pid-file binkd.pid
+inbound fido_in
+inbound-nonsecure fido_in
+minfree 2048
+minfree-nonsecure 2048
+kill-dup-partial-files
+kill-old-partial-files 1d
+kill-old-bsy 12h
+prescan
+node 4:902/26@fidonet bbs.docksud.com.ar YOUR_PASS
