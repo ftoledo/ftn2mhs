@@ -16,6 +16,7 @@ maybe WG module too. But i like the multiplatform style. I'm gnu/linux user.
 
  * Bash  >= 4.2
  * python-ftn >= 1.2.1 ( great tools from Lars Kellogg-Stedman @larsks)
+ * binkd
 
 I have a forked python-ftn on https://github.com/ftoledo/python-ftn
 
@@ -33,3 +34,4 @@ I have a forked python-ftn on https://github.com/ftoledo/python-ftn
 - [ ] Use real names instead of user-id
 - [ ] Support for bounced messages for errors/invalid processing
 - [ ] Support locale/i18n
+- [ ] support mhs file attachments

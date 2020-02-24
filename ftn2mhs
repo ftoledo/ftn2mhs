@@ -47,7 +47,7 @@ mhs_import_messages() {
       MSG_TEXT=`ftn-scanmsg -t $msg | tr '\0' '\r\n'`
       HEADERS=`echo $MSG_TEXT | sed '/^$/q'`
       BODY=`echo $MSG_TEXT | sed -e '1,/^$/d'`
-      OUT_FILE=`mktemp -u -p ${CFG[mhs_in]} -t XXXXXXXX`
+      OUT_FILE=`mktemp -u -p ${CFG[mhs_in]} -t XXXXXXX --suffix .msg`
 
       #detect netmail/echomail
       detected=1
@@ -114,5 +114,12 @@ else
   echo "Config file do not exits, please create it to continue"
   exit 1
 fi
+if [ -f pre-import ]; then
+    . pre-import
+fi
 mhs_import
+if [ -f post-import ]; then
+    . post-import
+fi
+
 mhs_export

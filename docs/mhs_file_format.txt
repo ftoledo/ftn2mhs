@@ -11,10 +11,10 @@ Message exported from forum (notice no dot have date):
 
 ------------------------------------------------------
 SMF-70
-To: hello@fidonet
+To: ragnarok@docksud
 From: MBBS@docksud {MBBS: Ragnarok}
 Subject: the cool subject
-Summary: MBBS: MHS:nameofsender @ domainsender
+Summary: MBBS: MHS:FERNANDO TOLEDO @ 4:902/26.5
 MCB-options: NNYNPNP
 
 
