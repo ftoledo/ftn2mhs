@@ -1,0 +1,5 @@
+#!/bin/bash
+echo "Pre export"
+# download mhs_out files from wgserv share 
+export PASSWD=your_smb_pass
+smbclient //your_wgserv/wgserv -U yout_sbm_user -c "prompt off; cd mhs_out; lcd mhs_out ; mget *; del *"

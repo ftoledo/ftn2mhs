@@ -1,0 +1,7 @@
+#!/bin/bash
+echo "Pre-Import script"
+# use binkd to make client_poll_and_quit to boss and get the packets for 
+# your node/point
+#
+/usr/sbin/binkd -p -P 4:902/26 binkd.cfg
+

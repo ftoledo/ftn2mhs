@@ -1,0 +1,8 @@
+#!/bin/bash
+echo "Post Import"
+# upload the mesage to the mhs_in directory of WG via samba
+export PASSWD=your_smb_pass
+smbclient //your_wgserv/wgserv -U your_user -c "prompt off; cd mhs_in; lcd mhs_in ; mput *.msg"
+if [ $? -eq 0 ]; then
+    rm mhs_in/*.msg
+fi

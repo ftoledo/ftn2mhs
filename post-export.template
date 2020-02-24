@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "Post-Import script"
+# make poll to boss and sent the packets!
+/usr/sbin/binkd -p -P 4:902/26 binkd.cfg

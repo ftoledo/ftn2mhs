@@ -1,3 +1,5 @@
+# example binkd config to call your boss
+
 log binkd.log
 loglevel 4
 domain fidonet fido_out 4

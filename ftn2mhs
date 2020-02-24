@@ -17,6 +17,15 @@ trim() {
     echo -n "$var"
 }
 
+valid_ftn_addr() {
+  local var="$*"
+  echo $var | grep ":" |grep "/" >/dev/null
+  if [ $? -eq 0 ]; then
+    echo -n "1"
+  else
+    echo -n "0"
+  fi
+}
 # Unpack pkt files
 mhs_import() {
   echo "Begin import"
@@ -103,8 +112,64 @@ mhs_import_messages() {
   done
 }
 mhs_export() {
-  echo "Begin export message"
+  echo "Begin export messages"
+  for msg in `find ${CFG[mhs_out]} -type f`
+  do
+    # really need to conver to unix EOL
+    dos2unix $msg
+    # very fist check
+    head -n1 $msg | grep SMF-70 > /dev/null
+    if [ $? -eq 0 ]; then
+      echo "Detected SMF-70 header"
+      IFS=""
+      HEADERS=`cat $msg | sed '/^$/q'`
+      BODY=`cat $msg | sed -e '1,/^$/d'`
 
+      # To (name)
+      to_line=`echo $HEADERS | grep "To: "`
+      IFS=':'
+      read -r field value <<< "$to_line"
+      IFS=''
+      to_line=`trim $value`
+      echo "full: $to_line"
+      to_name=`echo -e $to_line |cut -f 1 -d "@"`
+      to_addr=`echo -e $to_line |cut -f 2 -d "@"`
+      echo "To (name): $to_name"
+      echo "To (addr): $to_addr"
+
+      #From
+      from_name=`echo $HEADERS | grep "From: " |grep -Po "(?<=\{).*?(?=\})" |cut -f 2 -d ":"`
+      from_name=`trim $from_name`
+      echo "From (name): $from_name"
+      echo "From (addr): ${CFG[address]}"
+
+      # Subject
+      subject=`echo $HEADERS | grep "Subject:"`
+
+
+      if [ `valid_ftn_addr $to_addr` -eq 1 ]; then
+        OUT_FILE=`mktemp -u -p ${CFG[work]} -t XXXXXXXX --suffix .msg`
+        echo $BODY | ftn-makemsg -g private -s "$subject" -f $from_name -t $to_name -o ${CFG[address]} -d $to_addr --out $OUT_FILE
+        if [ $? -eq 0 ]; then
+          rm $msg
+        else
+          echo "Error to generate message"
+        fi
+      else
+        echo "Invalid FTN destination addres: $to_addr"
+
+      fi
+
+    else
+      echo "The file $msg do not start with SMF-70 header"
+    fi
+  done
+  # pack generated messages
+  OUT_FILE=`mktemp -u -p ${CFG[fido_out]} -t XXXXXXXX --suffix .pkt`
+  ftn-pack -o ${CFG[address]} -d ${CFG[boss]} -O $OUT_FILE ${CFG[work]}/*
+  if [ $? -eq 0 ]; then
+    rm ${CFG[work]}/*.msg
+  fi
 }
 
 declare -A CFG
@@ -114,12 +179,27 @@ else
   echo "Config file do not exits, please create it to continue"
   exit 1
 fi
-if [ -f pre-import ]; then
-    . pre-import
-fi
-mhs_import
-if [ -f post-import ]; then
-    . post-import
+
+if [ ${CFG[disable_import]} -ne 1 ]; then
+  if [ -f pre-import ]; then
+      . pre-import
+  fi
+  mhs_import
+  if [ -f post-import ]; then
+      . post-import
+  fi
+else
+  echo "Import disabled!"
 fi
 
-mhs_export
+if [ ${CFG[disable_export]} -ne 1 ]; then
+  if [ -f pre-export ]; then
+      . pre-export
+  fi
+  mhs_export
+  if [ -f post-export ]; then
+      . post-export
+  fi
+else
+  echo "Export disabled!"
+fi
