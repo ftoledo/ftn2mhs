@@ -1,9 +1,12 @@
 #!/bin/bash
-OLDIFS="$IFS"
+#
+# FTN2MHS v0.0.1
+#
+# https://github.com/ftoledo/ftn2mhs
+#
+# License: GPL-3
 
-PATH_FIDO_IN=fido_in
-PATH_MHS_IN=mhs_in
-PATH_WORK=work
+OLDIFS="$IFS"
 
 trim() {
     local var="$*"
@@ -14,85 +17,99 @@ trim() {
     echo -n "$var"
 }
 
+# Unpack pkt files
 mhs_import() {
-    # Unpack pkt files at temp/work dir
-    rm $PATH_WORK/*
-    rm $PATH_MHS_IN/*
-    for pkt in `find $PATH_FIDO_IN -iname *.pkt`
-    do
-        echo -e "Processing: $pkt"
-        ftn-unpack -D $PATH_WORK $pkt
-    done
-
-    # convert each msg into msh file
-    for msg in `find $PATH_WORK -iname *.msg`
-    do
-        echo "Processing: $msg"
-        IFS=""
-        MSG_TEXT=`ftn-scanmsg -t $msg | tr '\0' '\r\n'`
-        HEADERS=`echo $MSG_TEXT | sed '/^$/q'`
-        BODY=`echo $MSG_TEXT | sed -e '1,/^$/d'`
-        OUT_FILE=`basename $msg .msg`
-
-        #detect netmail/echomail
-        detected=1
-        echo $HEADERS |grep "Flags:" |grep -i PRIVATE
+  echo "Begin import"
+  echo "My address ${CFG[address]}"
+  for pkt in `find ${CFG[fido_in]} -iname *.pkt`
+  do
+      echo -e "Processing: $pkt"
+      destAddr=`ftn-querypkt -q destAddr $pkt`
+      origAddr=`ftn-querypkt -q origAddr $pkt`
+      if [ "${CFG[address]}" == "$destAddr" ]; then
+        ftn-unpack -D ${CFG[work]} $pkt
         if [ $? -eq 0 ]; then
-            is_private=1
-        else
-            echo $HEADERS |grep "Area:"
-            if [ $? -eq 0 ]; then
-                is_private=0
-                area=`echo $HEADERS |grep "Area:" | cut -f 2 -d ":"`
-                area=`trim $area`
-            else
-                echo "ERROR: can detect msg type (netmail/echomail)"
-                detected=0
-            fi
+          rm $pkt
         fi
-        if [ $detected -eq 1 ]; then
-            echo $HEADERS
+        mhs_import_messages
+      else
+        echo "Not for my: $origAddr => $destAddr"
+      fi
+  done
+}
 
-            # From
-            echo $HEADERS | grep "From:" >$PATH_MHS_IN/$OUT_FILE
+# convert each msg into msh file
+mhs_import_messages() {
+  for msg in `find ${CFG[work]} -iname *.msg`
+  do
+      echo "Processing: $msg"
+      IFS=""
+      MSG_TEXT=`ftn-scanmsg -t $msg | tr '\0' '\r\n'`
+      HEADERS=`echo $MSG_TEXT | sed '/^$/q'`
+      BODY=`echo $MSG_TEXT | sed -e '1,/^$/d'`
+      OUT_FILE=`mktemp -u -p ${CFG[mhs_in]} -t XXXXXXXX`
 
-            if [ $is_private -eq 1 ]; then
-                # To
-                to_line=`echo $HEADERS | grep "To: "`
-                IFS=':'
-                read -r field value <<< "$to_line"
-                to_name=`echo $value | cut -f 1 -d "@"`
-                IFS=""
-                to_name=`trim $to_name`
-                echo "To: $to_name @ MBBS {MBBS: $to_name}" >> $PATH_MHS_IN/$OUT_FILE
-                # Summary
-                value=`trim $value`
-                echo "Summary: MBBS: $value" >>$PATH_MHS_IN/$OUT_FILE
-            else
-                # To
-                echo "To: /$area @ MBBS {MBBS: /$area}" >> $PATH_MHS_IN/$OUT_FILE
-                # Summary
-                echo "Summary: MBBS: $value" >>$PATH_MHS_IN/$OUT_FILE
-            fi
+      #detect netmail/echomail
+      detected=1
+      echo $HEADERS |grep "Flags:" |grep -i PRIVATE
+      if [ $? -eq 0 ]; then
+          is_private=1
+      else
+          echo $HEADERS |grep "Area:"
+          if [ $? -eq 0 ]; then
+              is_private=0
+              area=`echo $HEADERS |grep "Area:" | cut -f 2 -d ":"`
+              area=`trim $area`
+          else
+              echo "ERROR: can detect msg type (netmail/echomail)"
+              detected=0
+          fi
+      fi
+      if [ $detected -eq 1 ]; then
+          echo $HEADERS
 
-            # Subject
-            echo $HEADERS | grep "Subject:" >>$PATH_MHS_IN/$OUT_FILE
+          # From
+          echo $HEADERS | grep "From:" >$OUT_FILE
 
-            # Date
-            echo $HEADERS | grep "Date:" >>$PATH_MHS_IN/$OUT_FILE
-            echo -e "\r\n" >>$PATH_MHS_IN/$OUT_FILE
-            echo $BODY >>$PATH_MHS_IN/$OUT_FILE
+          if [ $is_private -eq 1 ]; then
+              # To
+              to_line=`echo $HEADERS | grep "To: "`
+              IFS=':'
+              read -r field value <<< "$to_line"
+              to_name=`echo $value | cut -f 1 -d "@"`
+              IFS=""
+              to_name=`trim $to_name`
+              echo "To: $to_name @ MBBS {MBBS: $to_name}" >> $OUT_FILE
+              # Summary
+              value=`trim $value`
+              echo "Summary: MBBS: $value" >> $OUT_FILE
+          else
+              # To
+              echo "To: /$area @ MBBS {MBBS: /$area}" >> $OUT_FILE
+              # Summary
+              echo "Summary: MBBS: $value" >> $OUT_FILE
+          fi
 
-        fi
-    done
+          # Subject
+          echo $HEADERS | grep "Subject:" >> $OUT_FILE
+
+          # Date
+          echo $HEADERS | grep "Date:" >> $OUT_FILE
+          echo -e "\r\n" >> $OUT_FILE
+          echo $BODY >> $OUT_FILE
+          rm $msg
+
+      fi
+  done
 }
 mhs_export() {
   echo "Begin export message"
 
 }
 
+declare -A CFG
 if [ -f config ]; then
-  source ./config
+ . config
 else
   echo "Config file do not exits, please create it to continue"
   exit 1

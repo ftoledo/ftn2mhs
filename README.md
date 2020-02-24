@@ -12,14 +12,21 @@ It's still early develpoment and should not used on production environments
 I think that sometime i will code it in more environment-friendly for WG (win32) that be native,
 maybe WG module too. But i like the multiplatform style. I'm gnu/linux user.
 
+## Requeriments
+
+ * Bash  >= 4.2
+ * python-ftn >= 1.2.1 ( great tools from Lars Kellogg-Stedman @larsks)
+
+I have a forked python-ftn on https://github.com/ftoledo/python-ftn
+
 ## ToDo
 
 - [X] check config file exist
-- [ ] Validate packet address when import, to prevent get packets for other nodes
+- [X] Validate packet address when import, to prevent get packets for other nodes
 - [ ] Validate user/forum name/existence in WG (if posible)
 - [ ] Packet password support?
 - [ ] unified logging file and detailed log
-- [ ] Organice config file options
+- [X] Organice config file options
 - [ ] Create hooks (pre/post for import/export)
 - [ ] Vault directory for failed process packets
 - [ ] Map file for areas (if echomail name differs from WG Forum name)
