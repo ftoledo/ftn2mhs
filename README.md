@@ -14,14 +14,15 @@ maybe WG module too. But i like the multiplatform style. I'm gnu/linux user.
 
 ## ToDo
 
- [ ] Validate packet address when import, to prevent get packets for other nodes
- [ ] Validate user/forum name/existence in WG (if posible)
- [ ] Packet pasrod support?
- [ ] unified loggin file and detailed log
- [ ] Organice config file options
- [ ] Create hooks (pre/post for import/export)
- [ ] Vault directory for failed process packets
- [ ] Map file for areas (if echomail name differs from WG Forum name)
- [ ] Use real names instead of user-id
- [ ] Support for bounced messages for errors/invalid processing
- [ ] Support locale/i18n
+- [X] check config file exist
+- [ ] Validate packet address when import, to prevent get packets for other nodes
+- [ ] Validate user/forum name/existence in WG (if posible)
+- [ ] Packet password support?
+- [ ] unified logging file and detailed log
+- [ ] Organice config file options
+- [ ] Create hooks (pre/post for import/export)
+- [ ] Vault directory for failed process packets
+- [ ] Map file for areas (if echomail name differs from WG Forum name)
+- [ ] Use real names instead of user-id
+- [ ] Support for bounced messages for errors/invalid processing
+- [ ] Support locale/i18n
