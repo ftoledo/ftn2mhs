@@ -41,7 +41,7 @@ mhs_import() {
             is_private=1
         else
             echo $HEADERS |grep "Area:"
-            if [ $? -eq 0 ]; then 
+            if [ $? -eq 0 ]; then
                 is_private=0
                 area=`echo $HEADERS |grep "Area:" | cut -f 2 -d ":"`
                 area=`trim $area`
@@ -80,11 +80,22 @@ mhs_import() {
 
             # Date
             echo $HEADERS | grep "Date:" >>$PATH_MHS_IN/$OUT_FILE
-            echo -e "\r\n" >>$PATH_MHS_IN/$OUT_FILE 
+            echo -e "\r\n" >>$PATH_MHS_IN/$OUT_FILE
             echo $BODY >>$PATH_MHS_IN/$OUT_FILE
 
         fi
     done
 }
+mhs_export() {
+  echo "Begin export message"
 
+}
+
+if [ -f config ]; then
+  source ./config
+else
+  echo "Config file do not exits, please create it to continue"
+  exit 1
+fi
 mhs_import
+mhs_export
