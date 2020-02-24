@@ -28,7 +28,7 @@ I have a forked python-ftn on https://github.com/ftoledo/python-ftn
 - [ ] Packet password support?
 - [ ] unified logging file and detailed log
 - [X] Organice config file options
-- [ ] Create hooks (pre/post for import/export)
+- [X] Create hooks (pre/post for import/export)
 - [ ] Vault directory for failed process packets
 - [ ] Map file for areas (if echomail name differs from WG Forum name)
 - [ ] Use real names instead of user-id
